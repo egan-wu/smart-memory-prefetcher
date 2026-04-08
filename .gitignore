@@ -1,0 +1,28 @@
+# ChampSim build artifacts
+ChampSim/bin/
+ChampSim/.csconfig/
+ChampSim/vcpkg/
+ChampSim/vcpkg_installed/
+ChampSim/absolute.options
+ChampSim/global.options
+
+# Simulation results logs (large text files; CSV summary is tracked)
+results/no_pref/
+results/ipstride/
+results/rl_prefetcher/
+
+# Trace files (large binary files)
+traces/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pth
+
+# Model weights (large binary; export scripts are tracked)
+weights/*.pth
+weights/*.bin
+
+# macOS
+.DS_Store

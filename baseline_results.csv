@@ -1,0 +1,3 @@
+trace,config,IPC,LLC_MPKI,DRAM_BW_GBs
+synthetic_game,ipstride,0.2648,,
+synthetic_game,no_pref,0.244,,

@@ -1,0 +1,31 @@
+diff --git a/Makefile b/Makefile
+index 6aae9c9c..b7a010b4 100644
+--- a/Makefile
++++ b/Makefile
+@@ -14,11 +14,21 @@ override BTB_ROOT += $(addsuffix /btb,$(MODULE_ROOT))
+ override PREFETCH_ROOT += $(addsuffix /prefetcher,$(MODULE_ROOT))
+ override REPLACEMENT_ROOT += $(addsuffix /replacement,$(MODULE_ROOT))
+ 
+-# vcpkg integration
+-TRIPLET_DIR = $(patsubst %/,%,$(firstword $(filter-out $(ROOT_DIR)/vcpkg_installed/vcpkg/, $(wildcard $(ROOT_DIR)/vcpkg_installed/*/))))
+-override CPPFLAGS += -I$(OBJ_ROOT)
+-override LDFLAGS  += -L$(TRIPLET_DIR)/lib -L$(TRIPLET_DIR)/lib/manual-link
+-override LDLIBS   += -lCLI11 -llzma -lz -lbz2 -lfmt
++# Use Homebrew for dependencies on macOS (vcpkg bzip2 fails to build on arm64-osx)
++HOMEBREW_PREFIX ?= /opt/homebrew/opt
++override CPPFLAGS += -I$(OBJ_ROOT) \
++    -I$(HOMEBREW_PREFIX)/fmt/include \
++    -I$(HOMEBREW_PREFIX)/cli11/include \
++    -I$(HOMEBREW_PREFIX)/nlohmann-json/include \
++    -I$(HOMEBREW_PREFIX)/bzip2/include \
++    -I$(HOMEBREW_PREFIX)/xz/include \
++    -I$(HOMEBREW_PREFIX)/zlib/include
++override LDFLAGS  += -L$(HOMEBREW_PREFIX)/fmt/lib \
++    -L$(HOMEBREW_PREFIX)/bzip2/lib \
++    -L$(HOMEBREW_PREFIX)/xz/lib \
++    -L$(HOMEBREW_PREFIX)/zlib/lib
++# CLI11 is header-only; removed -lCLI11
++override LDLIBS   += -llzma -lz -lbz2 -lfmt
+ 
+ .PHONY: all clean compile_commands compile_commands_clean configclean test pytest maketest
+ 
