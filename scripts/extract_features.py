@@ -59,4 +59,4 @@ def process_trace(trace_file, window_size=8, max_delta=4, output_file=None):
         np.savez_compressed(output_file, X=X, y=y)
 
 if __name__ == "__main__":
-    process_trace("traces/synthetic_game.champsimtrace.gz", output_file="training_data.npz")
+    import sys; process_trace(sys.argv[1] if len(sys.argv) > 1 else "traces/synthetic_game.champsimtrace.gz", output_file=sys.argv[2] if len(sys.argv) > 2 else "training_data.npz")

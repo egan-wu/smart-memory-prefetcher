@@ -22,7 +22,7 @@ fi
 
 TRACE_NAME=$1
 shift
-COMMAND="$@"
+# We use "$@" directly later to preserve argument quoting.
 OUTPUT_FILE="traces/${TRACE_NAME}.champsimtrace.gz"
 
 echo "[1/3] Checking dependencies..."
@@ -33,14 +33,14 @@ fi
 
 mkdir -p traces
 
-echo "[2/3] Starting execution and trace capture for: ${COMMAND}"
+echo "[2/3] Starting execution and trace capture for: $@"
 echo "      Output will be streamed to: ${OUTPUT_FILE}"
 echo "      (This may take a while depending on the complexity of the application...)"
 
 # Run valgrind with the lackey tool, capture only memory traces.
 # The 2>&1 redirects valgrind's stderr (where it prints traces) to stdout,
 # so we can pipe it into our python script.
-valgrind --tool=lackey --trace-mem=yes $COMMAND 2>&1 | \
+valgrind --tool=lackey --trace-mem=yes "$@" 2>&1 | \
 python3 scripts/txt_to_champsim_trace.py --input - --out "$OUTPUT_FILE" --max_inst $MAX_INSTRUCTIONS
 
 echo "[3/3] Trace successfully captured and compressed."
