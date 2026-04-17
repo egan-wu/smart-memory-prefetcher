@@ -34,10 +34,18 @@ Export weights.h (constexpr C++ arrays)
 ```
 
 **Key design constraints** (hardware co-design):
-- Hidden layers ≤ 3, neurons ≤ 128 — maps cleanly to ASIC MAC units
-- ReLU only — no complex activation functions
+- **Why DQN / MLP?** Hardware latency constraints (< 10 cycles) and strict area/power budgets preclude complex sequence models like RNNs or Transformers. A shallow MLP (≤ 3 hidden layers, ≤ 128 neurons per layer) using purely Matrix Multiplication + ReLU maps perfectly to pipelined ASIC MAC units.
+- **State/Action/Reward Design:**
+  - *State:* History window of size $N$, containing `(PC_Hash, Address_Delta)`. Delta is used over absolute addresses to ensure generalizability.
+  - *Action:* Discrete offset predictions (e.g., $0, \pm1, \pm2$ cache lines). Action $0$ represents "do not prefetch".
+  - *Reward:* Strongly penalizes cache pollution (-5) and bandwidth overuse (-2), while rewarding hits (+10). This teaches the agent to abstain from guessing on irregular pointer-chasing patterns.
 - Inference in pure C++ with **zero dynamic memory allocation** — no `new`, no `std::vector`
 - Weights stored as `constexpr std::array` — equivalent to SRAM-baked weights in silicon
+
+### Future Architecture: Handling Workload Heterogeneity
+To address the variance between different game engines (e.g., sparse asset streaming vs. dense rendering) without exceeding ASIC budgets, the project architecture plans to support:
+- **Mixture of Experts (MoE) / Gating:** Deploying multiple tiny MLPs specialized in different patterns (e.g., Streaming vs. Pointer-chasing). A lightweight hardware performance counter routes inference to the best-performing expert dynamically.
+- **Loadable Per-Game Profiles:** Treating the `constexpr` weights as SRAM regions that can be rewritten by OS/Firmware updates or loaded specifically per-game, acting like a "GPU driver update" for the prefetcher.
 
 ---
 
