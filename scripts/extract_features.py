@@ -72,6 +72,11 @@ def process_trace(trace_file, window_size=8, max_delta=4, output_file=None):
             h_pc = pc_hash(ip)
             hist = history_per_pc[h_pc]
 
+            # Hardware L1 Cache filter: Avoid consecutive accesses to the same cache line.
+            # We must ignore these completely before processing any sliding windows.
+            if hist and hist[-1] == block_addr:
+                continue
+
             # If we have enough history to form a state AND a target action
             if len(hist) == window_size + 1:
                 # Calculate deltas for the state
@@ -94,10 +99,8 @@ def process_trace(trace_file, window_size=8, max_delta=4, output_file=None):
                 # Pop oldest
                 hist.pop(0)
 
-            # Add current to history. Avoid consecutive accesses to the same cache line
-            # as the L1 cache would filter them anyway in hardware.
-            if not hist or hist[-1] != block_addr:
-                hist.append(block_addr)
+            # Add current to history.
+            hist.append(block_addr)
 
             count += 1
             if count % 1000000 == 0:
