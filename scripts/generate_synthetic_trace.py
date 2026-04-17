@@ -51,12 +51,7 @@ def generate_trace(n_instructions: int, seed: int = 42) -> list[bytes]:
     ARRAY_SIZE = 1 << 20  # 1M entries × 8 bytes = 8MB working set (fits in 4MB LLC with pressure)
     CACHE_LINE = 64
 
-    # Fix: Instead of an ever-increasing IP, we simulate a loop where
-    # specific instructions (PCs) perform specific types of memory accesses.
-    STREAM_PC = 0x400100
-    STRIDE_PC = 0x400200
-    IRREGULAR_PC = 0x400300
-
+    ip = 0x400000
     stream_ptr  = BASE_ADDR
     stride_ptr  = BASE_ADDR + 0x1000000
     irregular_base = BASE_ADDR + 0x2000000
@@ -65,26 +60,28 @@ def generate_trace(n_instructions: int, seed: int = 42) -> list[bytes]:
         r = rng.random()
 
         if r < 0.40:
-            # Sequential stream: consistently accesses +1 cache line
+            # Sequential stream
             addr = stream_ptr
             stream_ptr += CACHE_LINE
             if stream_ptr > BASE_ADDR + ARRAY_SIZE * 8:
                 stream_ptr = BASE_ADDR
-            records.append(make_record(STREAM_PC, [addr], []))
+            records.append(make_record(ip, [addr], []))
 
         elif r < 0.70:
-            # Stride-2 pattern: consistently accesses +2 cache lines
+            # Stride-2 pattern
             addr = stride_ptr
             stride_ptr += 2 * CACHE_LINE
             if stride_ptr > BASE_ADDR + 0x1000000 + ARRAY_SIZE * 16:
                 stride_ptr = BASE_ADDR + 0x1000000
-            records.append(make_record(STRIDE_PC, [addr], []))
+            records.append(make_record(ip + 4, [addr], []))
 
         else:
-            # Irregular/random — simulates pointer chasing. Very hard to predict.
+            # Irregular/random — simulates pointer chasing in game scene graph
             idx = rng.randint(0, (ARRAY_SIZE // 4) - 1)
             addr = irregular_base + idx * 8
-            records.append(make_record(IRREGULAR_PC, [addr], []))
+            records.append(make_record(ip + 8, [addr], []))
+
+        ip += rng.choice([4, 4, 4, 8])  # mostly 4-byte instructions
 
     return records
 

@@ -65,7 +65,6 @@
     * **效能評估:** 計算 IPC 提升的百分比，分析頻寬節省量。
     * **硬體開銷 (SRAM Area):** 計算儲存特徵 Buffer 與模型權重所需的 SRAM 容量 (Bytes)。
     * **推論潛時 (Latency):** 估算矩陣乘法所需的 MAC 數量，論述在硬體 Pipeline 中如何隱藏這段計算時間。
-    * **架構延伸 (MoE & Profiles):** 論述如何透過 Mixture of Experts (MoE) 動態切換或透過韌體更新遊戲專屬的設定檔 (Loadable Per-Game Profiles)，來處理不同遊戲工作負載的異質性 (Workload Heterogeneity)。
 * **產出物:** 專案 Readme 或簡報 (包含 Pareto Frontier 分析圖表與架構比較圖)。
 * **所需資源/前置條件:** 數據視覺化工具 (Python Matplotlib/Seaborn)。
 * **驗證指標:** 報告的邏輯推演是否能說服資深架構師 (Trade-off 分析是否合理)。
