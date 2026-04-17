@@ -26,3 +26,4 @@ weights/*.bin
 
 # macOS
 .DS_Store
+training_data.npz
